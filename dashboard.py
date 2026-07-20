@@ -6,8 +6,9 @@ from collections import defaultdict
 from folium.plugins import MarkerCluster
 from sentence_transformers import SentenceTransformer
 import faiss, json, numpy as np
-import google.generativeai as genai
 import os
+from google import genai
+from google.genai import types
 
 st.set_page_config(layout="wide")
 
@@ -118,12 +119,14 @@ if st.button("Summarize"):
             )
 
         # Call Gemini
-        gemini_model = genai.GenerativeModel(
-            model_name="gemini-2.5-flash",
-            system_instruction=system_prompt
+        client = genai.Client(api_key=st.secrets["GOOGLE_API_KEY"])
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=user_prompt,
+            config=types.GenerateContentConfig(
+                system_instruction=system_prompt,
+            ),
         )
-
-        response = gemini_model.generate_content(user_prompt)
         st.write(response.text)
 
         # If using Gemini instead:

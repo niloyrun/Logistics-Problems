@@ -12,8 +12,6 @@ from google.genai import types
 
 st.set_page_config(layout="wide")
 
-genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-
 # Load your enriched events (replace with your actual loader)
 def load_events():
     # Example: from JSON file

@@ -125,7 +125,7 @@ if st.button("Summarize"):
                 {"role": "user", "parts": [user_prompt]}
             ]
         )
-        st.write(response["message"]["content"])
+        st.write(response.text)
 
         # If using Gemini instead:
         # import google.generativeai as genai

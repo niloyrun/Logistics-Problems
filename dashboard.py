@@ -98,7 +98,7 @@ if st.button("Summarize"):
                 f"Reporting Date: {e.get('reporting_date', '')})"
             )
         # Build prompt with system role
-                st.write('---')
+        st.write('---')
         st.subheader("My Opinion based on the Searched Results")
         
         system_prompt = (

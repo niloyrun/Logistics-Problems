@@ -9,9 +9,16 @@ import faiss, json, numpy as np
 import os
 from google import genai
 from google.genai import types
+from openai import OpenAI
 
 st.set_page_config(layout="wide")
-client = genai.Client(api_key=st.secrets["GOOGLE_API_KEY"])
+MODEL_NAME = "gemini-2.5-flash-lite"
+GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
+
+gemini_client = OpenAI(
+    base_url=GEMINI_BASE_URL,
+    api_key=st.secrets["GOOGLE_API_KEY"]
+)
 
 # Load your enriched events (replace with your actual loader)
 def load_events():
@@ -127,12 +134,27 @@ if st.button("Summarize"):
         user_prompt = "\n".join(prompt_lines)
 
         # 2. Call Gemini ensuring values are clean strings
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=str(user_prompt),  # Explicitly cast to string
-            config=types.GenerateContentConfig(
-                system_instruction=str(system_prompt),
-            ),
-        )
-        st.write(response.text)
-        
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+
+        # Call Gemini using the OpenAI Client structure with error handling retries
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                response = gemini_client.chat.completions.create(
+                    model=MODEL_NAME,
+                    messages=messages,
+                    # tools=tools, # Uncomment this only if 'tools' is defined elsewhere in your script
+                )
+                
+                # Print the response text to the dashboard
+                st.write(response.choices[0].message.content)
+                break  # Success, exit retry loop
+                
+            except Exception as e:
+                if attempt == max_retries - 1:
+                    st.error(f"Failed to generate output after {max_retries} attempts: {e}")
+                else:
+                    continue  # Try again

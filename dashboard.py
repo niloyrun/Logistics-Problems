@@ -3,12 +3,15 @@ import pandas as pd
 import folium
 from streamlit_folium import st_folium
 from collections import defaultdict
-import ollama  # or google.generativeai for Gemini
 from folium.plugins import MarkerCluster
 from sentence_transformers import SentenceTransformer
 import faiss, json, numpy as np
+import google.generativeai as genai
+import os
 
 st.set_page_config(layout="wide")
+
+genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
 
 # Load your enriched events (replace with your actual loader)
 def load_events():
@@ -114,11 +117,12 @@ if st.button("Summarize"):
                 f"Reporting Date: {e.get('reporting_date', '')})\n"
             )
 
-        response = ollama.chat(
-            model="llama3.2",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
+        # Call Gemini
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(
+            [
+                {"role": "system", "parts": [system_prompt]},
+                {"role": "user", "parts": [user_prompt]}
             ]
         )
         st.write(response["message"]["content"])

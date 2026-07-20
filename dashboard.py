@@ -118,12 +118,12 @@ if st.button("Summarize"):
             )
 
         # Call Gemini
-        model = genai.GenerativeModel(
+        gemini_model = genai.GenerativeModel(
             model_name="gemini-2.5-flash",
             system_instruction=system_prompt
         )
 
-        response = model.generate_content(user_prompt)
+        response = gemini_model.generate_content(user_prompt)
         st.write(response.text)
 
         # If using Gemini instead:

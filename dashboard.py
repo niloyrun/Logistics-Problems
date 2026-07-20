@@ -98,38 +98,40 @@ if st.button("Summarize"):
                 f"Reporting Date: {e.get('reporting_date', '')})"
             )
         # Build prompt with system role
-        st.write('---')
+                st.write('---')
         st.subheader("My Opinion based on the Searched Results")
+        
         system_prompt = (
             "You are a logistics support agent. "
             "You have information on events that may cause road blocks, diversions, or transport problems for company trucks. "
             "From the provided events, recommend only those that are relevant for logistics planning."
         )
 
-        user_prompt = f"Here are events related to {user_query}:\n\n"
+        # 1. Cleanly build the text block using a list to avoid serialization glitches
+        prompt_lines = [f"Here are events related to {user_query}:\n"]
         for e in matched_events:
-            user_prompt += (
-                f"- {e['title']} "
+            event_dates = e.get('event_dates')
+            date_str = ", ".join(event_dates) if isinstance(event_dates, list) else str(event_dates or "")
+            
+            line = (
+                f"- {e.get('title', 'Unknown Event')} "
                 f"(Reporting City: {e.get('reporting_city', '')}, "
                 f"Reporting State: {e.get('reporting_state', '')}, "
-                f"Event Dates: {', '.join(e.get('event_dates', []))}, "
-                f"Reporting Date: {e.get('reporting_date', '')})\n"
+                f"Event Dates: {date_str}, "
+                f"Reporting Date: {e.get('reporting_date', '')})"
             )
+            prompt_lines.append(line)
 
-        # Call Gemini
-        client = genai.Client(api_key=st.secrets["GOOGLE_API_KEY"])
+        # Combine everything into a single clean string
+        user_prompt = "\n".join(prompt_lines)
+
+        # 2. Call Gemini ensuring values are clean strings
         response = client.models.generate_content(
             model='gemini-2.5-flash',
-            contents=user_prompt,
+            contents=str(user_prompt),  # Explicitly cast to string
             config=types.GenerateContentConfig(
-                system_instruction=system_prompt,
+                system_instruction=str(system_prompt),
             ),
         )
         st.write(response.text)
-
-        # If using Gemini instead:
-        # import google.generativeai as genai
-        # genai.configure(api_key="YOUR_API_KEY")
-        # model = genai.GenerativeModel("gemini-1.5-flash")
-        # response = model.generate_content(prompt)
-        # st.write(response.text)
+        

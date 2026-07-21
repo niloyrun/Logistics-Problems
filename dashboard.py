@@ -95,16 +95,7 @@ if st.button("Summarize"):
     if not matched_events:
         st.write("No events found for that location.")
     else:
-        # ✅ Show all matched events first
-        st.subheader("Matched events for this location")
-        for e in matched_events:
-            st.write(
-                f"- {e['title']} "
-                f"(Reporting City: {e.get('reporting_city', '')}, "
-                f"Reporting State: {e.get('reporting_state', '')}, "
-                f"Event Dates: {', '.join(e.get('event_dates', []))}, "
-                f"Reporting Date: {e.get('reporting_date', '')})"
-            )
+        
         # Build prompt with system role
         st.write('---')
         st.subheader("My Opinion based on the Searched Results")
@@ -160,3 +151,14 @@ if st.button("Summarize"):
                     st.error(f"Failed to generate output after {max_retries} attempts: {e}")
                 else:
                     continue  # Try again
+
+        # ✅ Show all matched events first
+        st.subheader("Matched events for this location")
+        for e in matched_events:
+            st.write(
+                f"- {e['title']} "
+                f"(Reporting City: {e.get('reporting_city', '')}, "
+                f"Reporting State: {e.get('reporting_state', '')}, "
+                f"Event Dates: {', '.join(e.get('event_dates', []))}, "
+                f"Reporting Date: {e.get('reporting_date', '')})"
+            )

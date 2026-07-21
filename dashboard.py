@@ -112,8 +112,10 @@ if st.button("Summarize"):
         system_prompt = (
             "You are a logistics support agent. "
             "You have information on events that may cause road blocks, diversions, or transport problems for company trucks. "
-            "From the provided events, recommend only those that are relevant for logistics planning."
+            "From the provided events, recommend only those that are relevant for logistics planning. "
+            "Summarize each relevant event in a single concise line suitable for SMS or Email alerts."
         )
+
 
         # 1. Cleanly build the text block using a list to avoid serialization glitches
         prompt_lines = [f"Here are events related to {user_query}:\n"]
